@@ -1,0 +1,8 @@
+{{ influxdb_log_path }}/*.txt.* {
+        daily
+        rotate 7
+        compress
+        delaycompress
+        missingok
+        notifempty
+}
