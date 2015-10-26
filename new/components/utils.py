@@ -8,8 +8,6 @@ import sys
 import tempfile
 import socket
 
-from cloudify import ctx
-
 
 PROCESS_POLLING_INTERVAL = 0.1
 CLOUDIFY_SOURCES_PATH = '/opt/cloudify/sources'
@@ -63,25 +61,29 @@ def run(cmd, suppress_errors=False, suppress_output=False):
     return proc
 
 
+def log(message):
+    os.system('ctx logger info "{0}"'.format(message))
+
+
 def sys_error(message):
-    ctx.logger.info(message)
+    log(message)
     sys.exit(1)
 
 
 def create_dir(dir):
     if os.path.isdir(dir):
         return
-    ctx.logger.info('Creating Directory: {0}'.format(dir))
+    log('Creating Directory: {0}'.format(dir))
     run('sudo mkdir -p {0}'.format(dir))
 
 
 def install_python_package(source, venv=None):
     if venv:
-        ctx.logger.info('Installing {0} in virtualenv {1}...'.format(
+        log('Installing {0} in virtualenv {1}...'.format(
             source, venv))
         run('sudo {0}/bin/pip install {1} --upgrade'.format(venv, source))
     else:
-        ctx.logger.info('Installing {0}'.format(source))
+        log('Installing {0}'.format(source))
         run('sudo pip install {0} --upgrade'.format(source))
 
 
@@ -98,10 +100,10 @@ def curl_download_with_retries(source, destination):
 
 
 def download_file(url, destination):
-    # ctx.logger.info('Downloading {0} to {1}...'.format(url, destination))
+    # log('Downloading {0} to {1}...'.format(url, destination))
     # final_url = urllib.urlopen(url).geturl()
     # if final_url != url:
-    #     ctx.logger.info('Redirected to {0}'.format(final_url))
+    #     log('Redirected to {0}'.format(final_url))
     # f = urllib.URLopener()
     # f.retrieve(final_url, destination)
     if not destination:
@@ -109,10 +111,10 @@ def download_file(url, destination):
         fd.close()
 
     if not os.path.isfile(destination):
-        ctx.logger.info('Downloading {0} to {1}...'.format(url, destination))
+        log('Downloading {0} to {1}...'.format(url, destination))
         curl_download_with_retries(url, destination)
     else:
-        ctx.logger.info('File {0} already exists...'.format(destination))
+        log('File {0} already exists...'.format(destination))
     return destination
 
 
@@ -128,13 +130,13 @@ def get_file_name_from_url(url):
 
 def download_cloudify_resource(url):
     destf = os.path.join(CLOUDIFY_SOURCES_PATH, get_file_name_from_url(url))
-    ctx.logger.info('Downloading {0}...'.format(url))
+    log('Downloading {0}...'.format(url))
     if os.path.isfile(destf):
-        ctx.logger.info('Resource already exists ({0}). Skipping...'.format(
+        log('Resource already exists ({0}). Skipping...'.format(
             destf))
     else:
         tmp_path = download_file(url)
-        ctx.logger.info('Saving {0} under {1}'.format(tmp_path, destf))
+        log('Saving {0} under {1}'.format(tmp_path, destf))
         create_dir(CLOUDIFY_SOURCES_PATH)
         run('sudo mv {0} {1}'.format(tmp_path, destf))
     return destf
@@ -143,10 +145,10 @@ def download_cloudify_resource(url):
 def copy_notice(service):
     destn = os.path.join('/', 'opt', service, '_NOTICE.txt')
     if os.path.isfile(destn):
-        ctx.logger.info('NOTICE {0} already exists. Skipping...'.format(
+        log('NOTICE {0} already exists. Skipping...'.format(
             destn))
     else:
-        ctx.logger.info('Copying {0} NOTICE file to {1}...'.format(
+        log('Copying {0} NOTICE file to {1}...'.format(
             service, destn))
         notice_file = ctx.download_resouce('components/{0}/NOTICE.txt'.format(
             service))
@@ -156,17 +158,17 @@ def copy_notice(service):
 def wait_for_port(port, host='localhost'):
     counter = 1
 
-    ctx.logger.info('Waiting for {0}:{1} to become available...'.format(
+    log('Waiting for {0}:{1} to become available...'.format(
         host, port))
 
     for tries in xrange(24):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         result = sock.connect_ex((host, port))
         if not result == 0:
-            ctx.logger.info('{0}:{1} is not available yet, '
-                            'retrying... ({2}/24)'.format(host, port, counter))
+            log('{0}:{1} is not available yet, '
+                'retrying... ({2}/24)'.format(host, port, counter))
             continue
-        ctx.logger.info('{0}:{1} is open!'.format(host, port))
+        log('{0}:{1} is open!'.format(host, port))
         return
     sys_error('Failed to connect to {0}:{1}...'.format(host, port))
 
@@ -205,23 +207,23 @@ def yum_install(source):
 
     if ext.endswith('rpm'):
         archive_path = os.path.join(CLOUDIFY_SOURCES_PATH, source_name)
-        ctx.logger.info('Checking whether .rpm {0} exists...'.format(
+        log('Checking whether .rpm {0} exists...'.format(
             archive_path))
         if not os.path.isfile(archive_path):
             tmp_path = download_file(source)
             create_dir(CLOUDIFY_SOURCES_PATH)
-            ctx.logger.info('Saving {0} under {1}...'.format(
+            log('Saving {0} under {1}...'.format(
                 source_name, CLOUDIFY_SOURCES_PATH))
             run('sudo mv {0} {1}'.format(tmp_path, archive_path))
         source_name = run('rpm -qp {0}'.format(archive_path)).aggr_stdout
 
-    ctx.logger.info('Checking whether {0} is already installed...'.format(
+    log('Checking whether {0} is already installed...'.format(
         archive_path))
     if run('rpm -q {0}'.format(source_name)).returncode == 0:
-        ctx.logger.info('Package {0} is already installed.'.format(source))
+        log('Package {0} is already installed.'.format(source))
         return
 
-    ctx.logger.info('yum installing {0}...'.format(archive_path))
+    log('yum installing {0}...'.format(archive_path))
     run('sudo yum install -y {0}'.format(archive_path))
 
 
@@ -239,12 +241,12 @@ def configure_systemd_service(service_name):
     env_src = "components/{0}/config/{1}".format(service_name, sid)
     srv_src = "components/{0}/config/{1}.service".format(service_name, sid)
 
-    ctx.logger.info('Deploying systemd EnvironmentFile...')
+    log('Deploying systemd EnvironmentFile...')
     deploy_blueprint_resource(env_src, env_dst)
-    ctx.logger.info('Deploying systemd .service file...')
+    log('Deploying systemd .service file...')
     deploy_blueprint_resource(srv_src, srv_dst)
 
-    ctx.logger.info('Enabling systemd .service...')
+    log('Enabling systemd .service...')
     run('sudo systemctl enable {0}.service'.format(sid))
     run('sudo systemctl daemon-reload')
 
@@ -277,7 +279,7 @@ def stop_systemd_service(service_name):
 def deploy_blueprint_resource(source_path, destination_path):
     """Deploys a blueprint resource to a given path.
     """
-    ctx.logger.info('Deploying {0} to {1}'.format(
+    log('Deploying {0} to {1}'.format(
         source_path, destination_path))
     tmp_file = ctx.download_resource_and_render(source_path)
     run('sudo mv {0} {1}'.format(tmp_file, destination_path))
@@ -287,7 +289,7 @@ def replace_in_file(this, with_this, in_here):
     """replaces all occurences of the regex in all matches
     from a file with a specific value.
     """
-    ctx.logger.info('Replacing {0} with {1} in {2}...'.format(
+    log('Replacing {0} with {1} in {2}...'.format(
         this, with_this, in_here))
     run('sudo sed -i "|{0}|{1}|g" {2}'.format(this, with_this, in_here))
 
@@ -316,19 +318,19 @@ def set_selinux_permissive():
     """This sets SELinux to permissive mode both for the current session
     and systemwide.
     """
-    ctx.logger.info('Checking whether SELinux in enforced...')
+    log('Checking whether SELinux in enforced...')
     if get_selinux_state() == 'Enforcing':
-        ctx.logger.info('SELinux is enforcing, setting permissive state...')
+        log('SELinux is enforcing, setting permissive state...')
         run('sudo setenforce permissive')
         replace_in_file(
             'SELINUX=enforcing', 'SELINUX=permissive', '/etc/selinux/config')
     else:
-        ctx.logger.info('SELinux is not enforced.')
+        log('SELinux is not enforced.')
 
 
 def set_rabbitmq_policy(name, q_regex, p_type, value):
-    ctx.logger.info('Setting policy {0} on queues {1} of type {2} to '
-                    '{3}'.format(name, q_regex, p_type, value))
+    log('Setting policy {0} on queues {1} of type {2} to '
+        '{3}'.format(name, q_regex, p_type, value))
     run('sudo rabbitmqctl set_policy {0} {1} "{"\"{2}"\":{3}}" '
         '--apply-to-queues'.format(name, q_regex, p_type, value))
 
@@ -340,18 +342,18 @@ def create_service_user(user, home):
     and assume that it already exists.
     This user will only be created if it didn't already exist.
     """
-    ctx.logger.info('Checking whether {0} exists...'.format(user))
+    log('Checking whether {0} exists...'.format(user))
     user_exists = run('getend passwd {0}'.format(user)).returncode
     if user_exists:
-        ctx.logger.info('User {0} already exists...'.format(user))
+        log('User {0} already exists...'.format(user))
     else:
-        ctx.logger.info('Creating user {0}, home: {2}...'.format(user, home))
+        log('Creating user {0}, home: {2}...'.format(user, home))
         run('sudo useradd --shell /sbin/nologin --home-dir "{0}" '
             '--no-create-home --system "{1}"'.format(home, user))
 
 
 def deploy_logrotate_config(service):
-    ctx.logger.info('Deploying logrotate config...')
+    log('Deploying logrotate config...')
     config_file_source = 'components/{0}/config/logrotate-{1}'.format(service)
     config_file_destination = '/etc/logrotate.d/{0}'.format(service)
     tmp_path = ctx.download_resource_and_render(
@@ -362,7 +364,7 @@ def deploy_logrotate_config(service):
 
 
 def chown(user, group, path):
-    ctx.logger.info('chowning {0} by {1}:{2}...'.format(path, user, group))
+    log('chowning {0} by {1}:{2}...'.format(path, user, group))
     run('sudo chown -R {0}:{1} {2}'.format(user, group, path))
 
 
