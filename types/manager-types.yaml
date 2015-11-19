@@ -74,7 +74,6 @@ node_types:
               roles_config_file_path: '/opt/manager/roles_config.yaml'
               role_loader:
                 implementation: flask_securest.authorization_providers.role_loaders.simple_role_loader:SimpleRoleLoader
-
           #########################################################################
           # A user-store implementation is used to find a matching user
           # and load its details (Mandatory unless you specified a custom
@@ -83,18 +82,10 @@ node_types:
           # implementation, with the users listed inline.
           #########################################################################
           userstore_driver:
-            implementation: flask_securest.userstores.simple:SimpleUserstore
+            implementation: flask_securest.userstores.simple:FileUserstore
             properties:
-              userstore:
-                users:
-                  - username: { get_input: admin_username }
-                    password: { get_input: admin_password }
-                    groups:
-                      - cfy_admins
-                groups:
-                  - name: cfy_admins
-                    roles:
-                      - administrator
+              source_path: /home/adaml/user_roles.yaml
+              target_path: /opt/manager/user_roles.yaml
           #########################################################################
           # REST calls to "MANAGER_IP/tokens" will generate and return
           # authentication tokens if an auth_token_generator is set (Optional).
