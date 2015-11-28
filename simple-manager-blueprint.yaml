@@ -316,6 +316,20 @@ inputs:
     default: ''
 
   #############################
+  # Management Worker Inputs
+  #############################
+  management_worker_max_workers:
+    description: >
+      Max number of celery workers.
+    type: integer
+    default: 100
+  management_worker_min_workers:
+    description: >
+      Min number of celery workers.
+    type: integer
+    default: 2
+
+  #############################
   # Upload Resources Inputs
   #############################
   plugin_resources:
@@ -337,7 +351,7 @@ inputs:
       - {'source_path': 'http://www.getcloudify.org/spec/aws-plugin/1.3/plugin.yaml', 'destination_path': '/spec/aws-plugin/1.3/plugin.yaml'}
       - {'source_path': 'http://www.getcloudify.org/spec/tosca-vcloud-plugin/1.3/plugin.yaml', 'destination_path': '/spec/tosca-vcloud-plugin/1.3/plugin.yaml'}
       - {'source_path': 'http://www.getcloudify.org/spec/vsphere-plugin/1.3/plugin.yaml', 'destination_path': '/spec/tosca-vcloud-plugin/1.3/plugin.yaml'}
-      
+
       - {'source_path': 'http://www.getcloudify.org/spec/fabric-plugin/1.3/plugin.yaml', 'destination_path': '/spec/fabric-plugin/1.3/plugin.yaml'}
       - {'source_path': 'http://www.getcloudify.org/spec/diamond-plugin/1.3/plugin.yaml', 'destination_path': '/spec/diamond-plugin/1.3/plugin.yaml'}
       - {'source_path': 'http://www.getcloudify.org/spec/cloudify/3.3/types.yaml', 'destination_path': '/spec/cloudify/3.3/types.yaml'}
@@ -442,10 +456,6 @@ node_templates:
       ssh_key_filename: { get_input: ssh_key_filename }
       cloudify:
         resources_prefix: { get_input: resources_prefix }
-
-        transient_deployment_workers_mode:
-          enabled: true
-          global_parallel_executions_limit: 50
 
         cloudify_agent:
           min_workers: 0
