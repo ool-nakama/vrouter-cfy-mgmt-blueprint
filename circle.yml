@@ -4,6 +4,7 @@ machine:
 
 dependencies:
   override:
+    - pip install --upgrade pip
     - pip install setuptools --upgrade
     - pip install https://github.com/cloudify-cosmo/cloudify-rest-client/archive/3.3.zip --no-cache-dir  --ignore-installed
     - pip install https://github.com/cloudify-cosmo/cloudify-dsl-parser/archive/3.3.zip --no-cache-dir  --ignore-installed
