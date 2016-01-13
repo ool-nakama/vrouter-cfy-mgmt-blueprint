@@ -97,6 +97,14 @@ inputs:
   management_subnet_name:
     default: cloudify-management-network-subnet
     type: string
+    
+  dns_subnet_1:
+    default: 8.8.8.8
+    type: string
+    
+  dns_subnet_2:
+    default: 8.8.4.4
+    type: string
 
   management_router:
     default: cloudify-management-router
@@ -603,8 +611,8 @@ node_templates:
         ip_version: 4
         cidr: 10.67.79.0/24
         dns_nameservers:
-          - 8.8.8.8
-          - 8.8.4.4
+          - { get_input: dns_subnet_1 }
+          - { get_input: dns_subnet_2 }
       openstack_config: *openstack_configuration
     relationships:
       - target: management_network
