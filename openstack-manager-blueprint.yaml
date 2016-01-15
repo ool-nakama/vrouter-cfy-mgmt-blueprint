@@ -620,19 +620,6 @@ node_templates:
       - target: router
         type: cloudify.openstack.subnet_connected_to_router
 
-  manager_port:
-    type: cloudify.openstack.nodes.Port
-    properties:
-      openstack_config: *openstack_configuration
-      resource_id: { get_input: manager_port_name }
-    relationships:
-      - type: cloudify.relationships.contained_in
-        target: management_network
-      - type: cloudify.relationships.depends_on
-        target: management_subnet
-      - type: cloudify.openstack.port_connected_to_security_group
-        target: management_security_group
-
   router:
     type: cloudify.openstack.nodes.Router
     properties:
@@ -711,8 +698,12 @@ node_templates:
               public_ip: { get_attribute: [manager_server_ip, floating_ip_address] }
       - target: management_keypair
         type: cloudify.openstack.server_connected_to_keypair
-      - target: manager_port
-        type: cloudify.openstack.server_connected_to_port
+      - target: management_network
+        type: cloudify.relationships.contained_in
+      - target: management_subnet
+        type: cloudify.relationships.depends_on
+      - target: management_security_group
+        type: cloudify.openstack.server_connected_to_security_group
 
   # #####################################################################
   # The Python and Java nodes are used to provide runtime environments
