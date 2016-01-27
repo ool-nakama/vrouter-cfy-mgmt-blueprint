@@ -106,6 +106,10 @@ inputs:
     default: 8.8.4.4
     type: string
 
+  subnet_ip:
+    default: '192.168.8.0/24'
+    type: string
+  
   management_router:
     default: cloudify-management-router
     type: string
@@ -600,16 +604,18 @@ node_templates:
   management_network:
     type: cloudify.openstack.nodes.Network
     properties:
+      use_external_resource: true
       resource_id: { get_input: management_network_name }
       openstack_config: *openstack_configuration
 
   management_subnet:
     type: cloudify.openstack.nodes.Subnet
     properties:
+      use_external_resource: true
       resource_id: { get_input: management_subnet_name }
       subnet:
         ip_version: 4
-        cidr: 10.67.79.0/24
+        cidr: { get_input: subnet_ip }
         dns_nameservers:
           - { get_input: dns_subnet_1 }
           - { get_input: dns_subnet_2 }
@@ -623,6 +629,7 @@ node_templates:
   router:
     type: cloudify.openstack.nodes.Router
     properties:
+      use_external_resource: true
       resource_id: { get_input: management_router }
       openstack_config: *openstack_configuration
     relationships:
