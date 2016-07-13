@@ -43,6 +43,14 @@ inputs:
     default: ''
     type: string
 
+  dns_subnet_1:
+    default: 8.8.8.8
+    type: string
+    
+  dns_subnet_2:
+    default: 8.8.4.4
+    type: string
+
   manager_public_key_name:
     type: string
 
@@ -602,25 +610,15 @@ node_templates:
       subnet:
         ip_version: 4
         cidr: 10.67.79.0/24
+        dns_nameservers:
+          - { get_input: dns_subnet_1 }
+          - { get_input: dns_subnet_2 }
       openstack_config: *openstack_configuration
     relationships:
       - target: management_network
         type: cloudify.relationships.contained_in
       - target: router
         type: cloudify.openstack.subnet_connected_to_router
-
-  manager_port:
-    type: cloudify.openstack.nodes.Port
-    properties:
-      openstack_config: *openstack_configuration
-      resource_id: { get_input: manager_port_name }
-    relationships:
-      - type: cloudify.relationships.contained_in
-        target: management_network
-      - type: cloudify.relationships.depends_on
-        target: management_subnet
-      - type: cloudify.openstack.port_connected_to_security_group
-        target: management_security_group
 
   router:
     type: cloudify.openstack.nodes.Router
@@ -700,8 +698,12 @@ node_templates:
               public_ip: { get_attribute: [manager_server_ip, floating_ip_address] }
       - target: management_keypair
         type: cloudify.openstack.server_connected_to_keypair
-      - target: manager_port
-        type: cloudify.openstack.server_connected_to_port
+      - target: management_network
+        type: cloudify.relationships.contained_in
+      - target: management_subnet
+        type: cloudify.relationships.depends_on
+      - target: management_security_group
+        type: cloudify.openstack.server_connected_to_security_group
 
   # #####################################################################
   # The Python and Java nodes are used to provide runtime environments
