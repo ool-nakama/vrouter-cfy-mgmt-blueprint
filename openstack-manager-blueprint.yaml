@@ -685,6 +685,10 @@ node_templates:
       server:
         image: { get_input: image_id }
         flavor: { get_input: flavor_id }
+        userdata: |
+            #!/bin/bash
+            yum update -y
+            yum install gcc -y
       management_network_name: { get_property: [management_network, resource_id] }
       openstack_config: *openstack_configuration
     relationships:
