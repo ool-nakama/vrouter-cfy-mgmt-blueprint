@@ -688,7 +688,7 @@ node_templates:
         userdata: |
             #!/bin/bash
             yum update -y
-            yum install gcc python-devel -y
+            yum install gcc gcc-c++ python-devel -y
       management_network_name: { get_property: [management_network, resource_id] }
       openstack_config: *openstack_configuration
     relationships:
