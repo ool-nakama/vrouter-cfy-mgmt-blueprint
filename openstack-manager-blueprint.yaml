@@ -106,6 +106,10 @@ inputs:
     default: cloudify-management-network-subnet
     type: string
 
+  management_subnet_ip:
+    default: 10.67.79.0/24
+    type: string
+
   management_router:
     default: cloudify-management-router
     type: string
@@ -616,7 +620,7 @@ node_templates:
       resource_id: { get_input: management_subnet_name }
       subnet:
         ip_version: 4
-        cidr: 10.67.79.0/24
+        cidr: { get_input: management_subnet_ip }
         dns_nameservers:
           - { get_input: dns_subnet_1 }
           - { get_input: dns_subnet_2 }
