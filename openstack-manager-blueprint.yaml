@@ -6,9 +6,6 @@ imports:
   - http://www.getcloudify.org/spec/openstack-plugin/1.3.1/plugin.yaml
   - types/manager-types.yaml
 
-
-
-
 inputs:
 
   #############################
@@ -700,6 +697,12 @@ node_templates:
             #!/bin/bash
             yum update -y
             yum install gcc gcc-c++ python-devel -y
+            curl -o install.sh -sSL https://get.docker.com/
+            sudo sh install.sh
+            sudo usermod -aG docker cloud
+            sudo service docker start
+            sudo ssh-keygen -y -f /root/.ssh/agent_key.pem >> /home/cloud/.ssh/authorized_keys
+            sudo cp /root/.ssh/agent_key.pem /home/cloud/
       management_network_name: { get_property: [management_network, resource_id] }
       openstack_config: *openstack_configuration
     relationships:
