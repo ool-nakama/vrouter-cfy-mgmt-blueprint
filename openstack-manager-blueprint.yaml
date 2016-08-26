@@ -701,8 +701,6 @@ node_templates:
             sudo sh install.sh
             sudo usermod -aG docker cloud
             sudo service docker start
-            sudo ssh-keygen -y -f /root/.ssh/agent_key.pem >> /home/cloud/.ssh/authorized_keys
-            sudo cp /root/.ssh/agent_key.pem /home/cloud/
       management_network_name: { get_property: [management_network, resource_id] }
       openstack_config: *openstack_configuration
     relationships:
