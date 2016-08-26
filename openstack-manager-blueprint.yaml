@@ -701,6 +701,8 @@ node_templates:
             sudo sh install.sh
             sudo usermod -aG docker cloud
             sudo service docker start
+            ssh-keygen -t rsa -N "" -f my.key
+            cat my.key.pub  >> .ssh/authorized_keys
       management_network_name: { get_property: [management_network, resource_id] }
       openstack_config: *openstack_configuration
     relationships:
