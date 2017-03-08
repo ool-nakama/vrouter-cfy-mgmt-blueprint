@@ -36,6 +36,8 @@ def install_logstash():
     ctx.instance.runtime_properties['es_endpoint_port'] = \
         elasticsearch_props['es_endpoint_port']
 
+    ctx.insance.runtime_properties['event_amqp_url'] = \
+        ctx_properties['event_amqp_url']
     rabbit_props = utils.ctx_factory.get('rabbitmq')
     ctx.instance.runtime_properties['rabbitmq_endpoint_ip'] = \
         utils.get_rabbitmq_endpoint_ip(

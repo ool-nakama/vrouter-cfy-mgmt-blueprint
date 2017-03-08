@@ -413,6 +413,8 @@ node_types:
         description: Use existing logstash configuration
         type: string
         default: true
+      event_amqp_url:
+        type: string
     interfaces:
       cloudify.interfaces.lifecycle:
         create:
@@ -840,6 +842,9 @@ node_types:
         description: Use existing amqp influx configuration
         type: string
         default: true
+      influxdb_ip:
+        type: string
+        defaut: true
     interfaces:
       cloudify.interfaces.lifecycle:
         create:

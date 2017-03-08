@@ -49,7 +49,7 @@ def install_amqpinflux():
 
     # injected as an input to the script
     ctx.instance.runtime_properties['influxdb_endpoint_ip'] = \
-        os.environ['INFLUXDB_ENDPOINT_IP']
+        ctx_properties['influxdb_ip']
     rabbit_props = utils.ctx_factory.get('rabbitmq')
     ctx.instance.runtime_properties['rabbitmq_endpoint_ip'] = \
         utils.get_rabbitmq_endpoint_ip(

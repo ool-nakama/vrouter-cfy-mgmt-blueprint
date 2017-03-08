@@ -288,6 +288,8 @@ inputs:
     type: string
     default: cloudify-hello-world-example-3.4.1.tar.gz
 
+  event_amqp_url:
+    type: string
   #############################
   # RabbitMQ Inputs
   #############################
@@ -493,6 +495,10 @@ inputs:
   influxdb_endpoint_ip:
     description: >
       An IP Endpoint of your InfluxDB Cluster.
+    type: string
+    default: ''
+
+  influxdb_ip:
     type: string
     default: ''
 
