@@ -844,7 +844,6 @@ node_types:
         default: true
       influxdb_ip:
         type: string
-        defaut: true
     interfaces:
       cloudify.interfaces.lifecycle:
         create:

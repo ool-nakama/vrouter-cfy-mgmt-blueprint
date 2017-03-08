@@ -907,6 +907,8 @@ node_templates:
 
   logstash:
     type: manager.nodes.Logstash
+    properties:
+      event_amqp_url: { get_input: event_amqp_url}
     relationships:
       - type: cloudify.relationships.contained_in
         target: manager_host
@@ -979,6 +981,8 @@ node_templates:
 
   amqp_influx:
     type: manager.nodes.AmqpInfluxBroker
+    properties:
+      influxdb_ip: { get_input: influxdb_ip }
     relationships:
       - type: cloudify.relationships.contained_in
         target: manager_host
