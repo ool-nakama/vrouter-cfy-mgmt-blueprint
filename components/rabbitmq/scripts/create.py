@@ -97,6 +97,8 @@ def _install_rabbitmq():
     utils.copy_notice(RABBITMQ_SERVICE_NAME)
     utils.mkdir(rabbitmq_log_path)
 
+    utils.yum_install("zeromq-devel",
+                      service_name=RABBITMQ_SERVICE_NAME)
     utils.yum_install(erlang_rpm_source_url,
                       service_name=RABBITMQ_SERVICE_NAME)
     utils.yum_install(rabbitmq_rpm_source_url,
