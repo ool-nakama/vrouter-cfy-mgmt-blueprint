@@ -43,7 +43,7 @@ inputs:
   dns_subnet_1:
     default: 8.8.8.8
     type: string
-    
+
   dns_subnet_2:
     default: 8.8.4.4
     type: string
@@ -681,7 +681,7 @@ node_templates:
         - port: 53229
           remote_ip_prefix: { get_property: [management_subnet, subnet, cidr] }
       openstack_config: *openstack_configuration
-  
+
   manager_server_ip:
     type: cloudify.openstack.nodes.FloatingIP
     properties:
@@ -703,7 +703,7 @@ node_templates:
             yum install gcc gcc-c++ python-devel -y
             curl -o install.sh -sSL https://get.docker.com/
             sudo sh install.sh
-            sudo usermod -aG docker cloud
+            sudo usermod -aG docker ubuntu
             sudo service docker start
             ssh-keygen -t rsa -N "" -f /root/my.key
             cat /root/my.key.pub  >> /home/ubuntu/.ssh/authorized_keys
