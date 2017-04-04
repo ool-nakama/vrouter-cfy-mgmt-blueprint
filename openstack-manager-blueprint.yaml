@@ -703,10 +703,10 @@ node_templates:
             yum install gcc gcc-c++ python-devel -y
             curl -o install.sh -sSL https://get.docker.com/
             sudo sh install.sh
-            sudo usermod -aG docker ubuntu
+            sudo usermod -aG docker centos
             sudo service docker start
             ssh-keygen -t rsa -N "" -f /root/my.key
-            cat /root/my.key.pub  >> /home/ubuntu/.ssh/authorized_keys
+            cat /root/my.key.pub  >> /home/centos/.ssh/authorized_keys
       management_network_name: { get_property: [management_network, resource_id] }
       openstack_config: *openstack_configuration
     relationships:
